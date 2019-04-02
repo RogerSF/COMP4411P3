@@ -39,6 +39,11 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// more steps: add in the contributions from reflected and refracted
 		// rays.
 
+		// Recursive ray-trace the secondary rays as follows:
+		// 1. Shadow ray to light source(s)
+		// 2. Reflected ray
+		// 3. Refracted ray
+
 		const Material& m = i.getMaterial();
 		return m.shade(scene, r, i);
 	
