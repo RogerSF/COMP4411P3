@@ -12,9 +12,23 @@ double DirectionalLight::distanceAttenuation( const vec3f& P ) const
 
 vec3f DirectionalLight::shadowAttenuation( const vec3f& P ) const
 {
-    // YOUR CODE HERE:
-    // You should implement shadow-handling code here.
-    return vec3f(1,1,1);
+	vec3f target_direction = getDirection(P);
+	vec3f current_target = P;
+	isect target_intersection;
+	vec3f intensity = getColor(P);
+	ray r = ray(current_target, target_direction);
+
+	while (scene->intersect(r, target_intersection))
+	{
+		// Return black if the material is not transparent
+		if (target_intersection.getMaterial().kt.iszero()) return vec3f(0, 0, 0);
+
+		//use current intersection point as new light source
+		current_target = r.at(target_intersection.t);
+		r = ray(current_target, target_direction);
+		intensity = prod(intensity, target_intersection.getMaterial().kt);
+	}
+	return intensity;
 }
 
 vec3f DirectionalLight::getColor( const vec3f& P ) const
@@ -35,8 +49,11 @@ double PointLight::distanceAttenuation( const vec3f& P ) const
 	// You'll need to modify this method to attenuate the intensity 
 	// of the light based on the distance between the source and the 
 	// point P.  For now, I assume no attenuation and just return 1.0
-	double distance_squared = pow(position[0] - P[0], 2) + pow(position[1] - P[1], 2) + pow(position[2] - P[2], 2);
-	return 1 / distance_squared;
+
+	double distance_squared = (P - position).length_squared();
+	double distance = sqrt(distance_squared);
+	// For future bonus, coefficient controlling linear and quad factors
+	return  1.0 / maximum(distance_squared, 1.0);
 }
 
 vec3f PointLight::getColor( const vec3f& P ) const
@@ -53,7 +70,26 @@ vec3f PointLight::getDirection( const vec3f& P ) const
 
 vec3f PointLight::shadowAttenuation(const vec3f& P) const
 {
-    // YOUR CODE HERE:
-    // You should implement shadow-handling code here.
-    return vec3f(1,1,1);
+	double distance = (P - position).length();
+	vec3f target_direction = getDirection(P);
+	vec3f current_target = P;
+	isect target_intersection;
+	vec3f intensity = getColor(P);
+	ray r = ray(current_target, target_direction);
+
+	while (scene->intersect(r, target_intersection))
+	{
+		// Keep intersection within point light source's range
+		distance -= target_intersection.t;
+		if (distance < RAY_EPSILON) return intensity;
+
+		// Return black if the material is not transparent
+		if (target_intersection.getMaterial().kt.iszero()) return vec3f(0, 0, 0);
+
+		//use current intersection point as new light source
+		current_target = r.at(target_intersection.t);
+		r = ray(current_target, target_direction);
+		intensity = prod(intensity, target_intersection.getMaterial().kt);
+	}
+	return intensity;
 }

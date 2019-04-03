@@ -8,6 +8,9 @@
 #include "scene/ray.h"
 #include "fileio/read.h"
 #include "fileio/parse.h"
+#include "ui/TraceUI.h"
+
+extern TraceUI* traceUI;
 
 // Trace a top-level ray through normalized window coordinates (x,y)
 // through the projection plane, and out into the scene.  All we do is
@@ -43,23 +46,35 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// 1. Shadow ray to light source(s)
 		// 2. Reflected ray
 		// 3. Refracted ray
-
+		vec3f final_intensity;
 
 		const Material& m = i.getMaterial();
-		vec3f direct_intensity = m.shade(scene, r, i);
-		if(depth <= 0)
+		final_intensity += m.shade(scene, r, i);
+		
+		if (depth >= traceUI->getDepth())
 		{
-			return direct_intensity;
+			return final_intensity;
 		}
 
 		vec3f intersect_position = r.at(i.t);
 		vec3f normal = i.N.normalize();
-		vec3f reflected_light = r.getDirection() - 2 * (r.getDirection() * normal) * normal;
+		vec3f ray_direction = r.getDirection();
 
-		vec3f reflected_intensity = traceRay(scene, ray(intersect_position, reflected_light), thresh, depth - 1);
-		vec3f transmitted_intensity = traceRay(scene, ray(intersect_position, intersect_position) , thresh, depth - 1);
-		return direct_intensity + reflected_intensity + transmitted_intensity;
-	
+		// Negate the reflected light vector to get vector pointing out the surface
+		// This is because the origin light ray points towards the surface
+		// and the immediate reflection of this will result in a ray pointing towards the surface too
+		vec3f reflected_ray_direction = -(ray_direction - 2 * ((ray_direction).dot(normal)) * normal).normalize();
+
+		// Reflected ray tracing
+		ray reflected_ray = ray(intersect_position, reflected_ray_direction);
+		if(!i.getMaterial().kr.iszero()) {
+			final_intensity += prod(i.getMaterial().kr, traceRay(scene, reflected_ray, thresh, depth + 1));
+		}
+		// Refracted ray
+		// final_intensity += traceRay(scene, ray(intersect_position, intersect_position) , thresh, depth + 1);
+
+		final_intensity = final_intensity.clamp();
+		return final_intensity;
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
