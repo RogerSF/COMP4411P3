@@ -18,7 +18,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	// shading model, including the contributions of all the light sources.
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
-
+	// return kd;
 	vec3f intersect_position = r.at(i.t);
 	vec3f out_position = intersect_position + i.N * RAY_EPSILON;
 	vec3f specularSum;
@@ -45,7 +45,8 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		const double distance_attenuation = light->distanceAttenuation(intersect_position);
 		const vec3f shadow_attenuation = light->shadowAttenuation(out_position);
 
-		specularSum += prod((distance_attenuation * shadow_attenuation), (diffuse_reflection + specular_reflection));
+		// specularSum += prod((distance_attenuation * shadow_attenuation), (diffuse_reflection + specular_reflection));
+		specularSum += distance_attenuation * (diffuse_reflection + specular_reflection);
 	}
 
 	vec3f transparency = vec3f(1, 1, 1) - kt;
