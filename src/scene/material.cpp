@@ -45,8 +45,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		const double distance_attenuation = light->distanceAttenuation(intersect_position);
 		const vec3f shadow_attenuation = light->shadowAttenuation(out_position);
 
-		// specularSum += prod((distance_attenuation * shadow_attenuation), (diffuse_reflection + specular_reflection));
-		specularSum += distance_attenuation * (diffuse_reflection + specular_reflection);
+		specularSum += prod((distance_attenuation * shadow_attenuation), (diffuse_reflection + specular_reflection));
 	}
 
 	vec3f transparency = vec3f(1, 1, 1) - kt;
