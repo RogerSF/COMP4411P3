@@ -5,6 +5,7 @@
 
 #include "scene/scene.h"
 #include "scene/ray.h"
+#include <deque>
 
 class RayTracer
 {
@@ -33,6 +34,7 @@ private:
 	Scene *scene;
 
 	bool m_bSceneLoaded;
+    std::deque<const Material*> material_stack;
 };
 
 #endif // __RAYTRACER_H__

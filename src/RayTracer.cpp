@@ -66,12 +66,48 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		vec3f reflected_ray_direction = (ray_direction - 2 * ((ray_direction).dot(normal)) * normal).normalize();
 
 		// Reflected ray tracing
-		ray reflected_ray = ray(intersect_position, reflected_ray_direction);
 		if(!i.getMaterial().kr.iszero()) {
-			final_intensity += prod(i.getMaterial().kr, traceRay(scene, reflected_ray, thresh, depth + 1));
+			ray reflected_ray = ray(intersect_position, reflected_ray_direction);
+			final_intensity += prod(i.getMaterial().kr, traceRay(scene, reflected_ray, prod(thresh, i.getMaterial().kr), depth + 1));
 		}
-		// Refracted ray
-		// final_intensity += traceRay(scene, ray(intersect_position, intersect_position) , thresh, depth + 1);
+
+		// Refracted ray tracing
+		if (!i.getMaterial().kt.iszero()) {
+			double index1, index2;
+			bool isLeavingObject = material_stack.empty() ? false : &i.getMaterial() == material_stack.front();
+
+			if(isLeavingObject)
+			{
+				// Leaving object
+				index1 = i.getMaterial().index;
+				index2 = material_stack.size() <= 1 ? 1.0 : material_stack[1]->index;
+				material_stack.pop_front();
+			} else
+			{
+				// Entering object
+				index1 = material_stack.empty() ? 1.0 : material_stack.front()->index;
+				index2 = i.getMaterial().index;
+				material_stack.push_front(&i.getMaterial());
+			}
+
+			double ratio_of_refraction = index1 / index2;
+			double cos_incident_angle = normal.dot(-ray_direction);
+			double sin_incident_angle = sqrt(1 - pow(cos_incident_angle, 2));
+			double sin_refracted_angle = sin_incident_angle * ratio_of_refraction;
+
+			if(sin_refracted_angle > 1.0)
+			{
+				// tir
+				return vec3f();
+			} else
+			{
+				double cos_refracted_angle = sqrt(1 - pow(sin_refracted_angle, 2));
+				vec3f refracted_ray_direction = (ratio_of_refraction * cos_refracted_angle - cos_refracted_angle)*normal - (ratio_of_refraction * -ray_direction);
+				ray refracted_ray = ray(intersect_position, refracted_ray_direction);
+
+				final_intensity += traceRay(scene, refracted_ray, prod(thresh, i.getMaterial().kt), depth + 1);
+			}
+		}
 
 		final_intensity = final_intensity.clamp();
 		return final_intensity;
