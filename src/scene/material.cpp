@@ -19,24 +19,35 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
 
+	vec3f intersect_position = r.at(i.t);
 	vec3f specularSum;
 
 	for(Scene::cliter light_it = scene->beginLights(); light_it != scene->endLights(); ++light_it)
 	{
 		Light* light = *light_it;
-		vec3f light_direction = light->getDirection(r.getPosition()).normalize();
+		vec3f light_direction = light->getDirection(intersect_position).normalize();
 		vec3f normal = i.N.normalize();
 
-		// kd * lambertian
-		vec3f diffuse_reflection = kd * maximum(normal.dot(-light_direction), 0);
+		// Phong diffuse reflection equation
+		// kd * lambertian (angle between normal and light direction)
+		vec3f diffuse_reflection = kd * maximum(normal.dot(light_direction), 0);
 
-		vec3f reflected_light = light_direction - 2 * ((light_direction).dot(normal)) * normal;
-		vec3f view_vector = r.getDirection().normalize();
+		// Negate the reflected light vector to get vector pointing out the surface
+		// This is because the origin light ray points towards the surface
+		// and the immediate reflection of this will result in a ray pointing towards the surface too
+		vec3f reflected_light = -(light_direction - 2 * ((light_direction).dot(normal)) * normal).normalize();
+		// Negate the ray vector to get vector pointing to the ray origin
+		vec3f view_vector = -r.getDirection().normalize();
 
+		// Phong specular reflection equation
 		vec3f specular_reflection = ks * pow(maximum(reflected_light.dot(view_vector), 0), shininess);
-		const double distance_attenuation = light->distanceAttenuation(normal);
+		const double distance_attenuation = light->distanceAttenuation(intersect_position);
 
 		specularSum += distance_attenuation * (diffuse_reflection + specular_reflection);
 	}
-	return ke + ka + specularSum;
+
+	vec3f result = ke + ka + specularSum;
+	result = result.clamp();
+
+	return result;
 }
