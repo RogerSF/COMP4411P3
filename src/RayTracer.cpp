@@ -58,12 +58,12 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 
 		vec3f intersect_position = r.at(i.t);
 		vec3f normal = i.N.normalize();
-		vec3f ray_direction = r.getDirection();
+		vec3f ray_direction = r.getDirection().normalize();
 
 		// Negate the reflected light vector to get vector pointing out the surface
 		// This is because the origin light ray points towards the surface
 		// and the immediate reflection of this will result in a ray pointing towards the surface too
-		vec3f reflected_ray_direction = -(ray_direction - 2 * ((ray_direction).dot(normal)) * normal).normalize();
+		vec3f reflected_ray_direction = (ray_direction - 2 * ((ray_direction).dot(normal)) * normal).normalize();
 
 		// Reflected ray tracing
 		ray reflected_ray = ray(intersect_position, reflected_ray_direction);

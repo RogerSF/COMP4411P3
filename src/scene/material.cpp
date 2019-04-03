@@ -36,9 +36,9 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		// Negate the reflected light vector to get vector pointing out the surface
 		// This is because the origin light ray points towards the surface
 		// and the immediate reflection of this will result in a ray pointing towards the surface too
-		vec3f reflected_light = -(light_direction - 2 * ((light_direction).dot(normal)) * normal).normalize();
+		vec3f reflected_light = (light_direction - 2 * ((light_direction).dot(normal)) * normal).normalize();
 		// Negate the ray vector to get vector pointing to the ray origin
-		vec3f view_vector = -r.getDirection().normalize();
+		vec3f view_vector = r.getDirection().normalize();
 
 		// Phong specular reflection equation
 		vec3f specular_reflection = ks * pow(maximum(reflected_light.dot(view_vector), 0), shininess);
