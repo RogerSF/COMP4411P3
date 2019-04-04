@@ -19,6 +19,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
 	// return kd;
+	vec3f transparency = vec3f(1, 1, 1) - kt;
 	vec3f intersect_position = r.at(i.t);
 	vec3f out_position = intersect_position + i.N * RAY_EPSILON;
 	vec3f specularSum;
@@ -31,7 +32,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
 		// Phong diffuse reflection equation
 		// kd * lambertian (angle between normal and light direction)
-		vec3f diffuse_reflection = kd * maximum(normal.dot(light_direction), 0);
+		vec3f diffuse_reflection = prod(transparency, kd) * maximum(normal.dot(light_direction), 0);
 
 		// Negate the reflected light vector to get vector pointing out the surface
 		// This is because the origin light ray points towards the surface
@@ -48,8 +49,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		specularSum += prod((distance_attenuation * shadow_attenuation), (diffuse_reflection + specular_reflection));
 	}
 
-	vec3f transparency = vec3f(1, 1, 1) - kt;
-	vec3f result = ke + prod(transparency, ka) + specularSum;
+	vec3f result = ke + ka + specularSum;
 	result = result.clamp();
 
 	return result;

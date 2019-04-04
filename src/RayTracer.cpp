@@ -91,8 +91,8 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			}
 
 			double ratio_of_refraction = index1 / index2;
-			double cos_incident_angle = normal.dot(-ray_direction);
-			double sin_incident_angle = sqrt(1 - pow(cos_incident_angle, 2));
+			double cos_incident_angle = maximum(1, minimum(-1, normal.dot(-ray_direction))); // Invert the ray direction vector to compute angle between vectors, clamp between -1, 1
+			double sin_incident_angle = sqrt(1 - pow(cos_incident_angle, 2)); // sin cos identity
 			double sin_refracted_angle = sin_incident_angle * ratio_of_refraction;
 
 			if(sin_refracted_angle > 1.0)
@@ -102,10 +102,10 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			} else
 			{
 				double cos_refracted_angle = sqrt(1 - pow(sin_refracted_angle, 2));
-				vec3f refracted_ray_direction = (ratio_of_refraction * cos_refracted_angle - cos_refracted_angle)*normal - (ratio_of_refraction * -ray_direction);
+				vec3f refracted_ray_direction = (ratio_of_refraction * cos_refracted_angle - cos_refracted_angle)*-normal - (ratio_of_refraction * -ray_direction);
 				ray refracted_ray = ray(intersect_position, refracted_ray_direction);
 
-				final_intensity += traceRay(scene, refracted_ray, prod(thresh, i.getMaterial().kt), depth + 1);
+				final_intensity += prod(i.getMaterial().kt, traceRay(scene, refracted_ray, prod(thresh, i.getMaterial().kt), depth + 1));
 			}
 		}
 
