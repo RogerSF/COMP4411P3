@@ -82,6 +82,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 				index1 = i.getMaterial().index;
 				index2 = material_stack.size() <= 1 ? 1.0 : material_stack[1]->index;
 				material_stack.pop_front();
+				normal = -normal;
 			} else
 			{
 				// Entering object
@@ -102,7 +103,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			} else
 			{
 				double cos_refracted_angle = sqrt(1 - pow(sin_refracted_angle, 2));
-				vec3f refracted_ray_direction = (ratio_of_refraction * cos_refracted_angle - cos_refracted_angle)*-normal - (ratio_of_refraction * -ray_direction);
+				vec3f refracted_ray_direction = (ratio_of_refraction * cos_refracted_angle - cos_refracted_angle)*normal - (ratio_of_refraction * -ray_direction);
 				ray refracted_ray = ray(intersect_position, refracted_ray_direction);
 
 				final_intensity += prod(i.getMaterial().kt, traceRay(scene, refracted_ray, prod(thresh, i.getMaterial().kt), depth + 1));
