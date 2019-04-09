@@ -20,6 +20,7 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
     // somewhere in your code in order to compute shadows and light falloff.
 	// return kd;
 	vec3f intersect_position = r.at(i.t);
+	vec3f normal = i.N.normalize();
 	vec3f result = ke + ka;
 
 	for(Scene::cliter light_it = scene->beginLights(); light_it != scene->endLights(); ++light_it)
@@ -29,7 +30,6 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		const vec3f shadow_attenuation = light->shadowAttenuation(intersect_position);
 		vec3f attenuation = distance_attenuation * shadow_attenuation;
 		vec3f light_direction = light->getDirection(intersect_position).normalize();
-		vec3f normal = i.N.normalize();
 
 		// Phong diffuse reflection equation
 		// kd * lambertian (angle between normal and light direction)
@@ -43,9 +43,9 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 		vec3f view_vector = r.getDirection().normalize();
 
 		// Phong specular reflection equation
-		vec3f specular_reflection = ks * pow(maximum(reflected_light.dot(view_vector), 0), shininess);
+		vec3f specular_reflection = ks * pow(maximum(-reflected_light.dot(view_vector), 0), shininess*128);
 
-		result += prod(attenuation, diffuse_reflection + specular_reflection);
+		result += prod(attenuation, (diffuse_reflection + specular_reflection));
 	}
 
 	result = result.clamp();
