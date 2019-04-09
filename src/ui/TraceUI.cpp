@@ -92,6 +92,21 @@ void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 	((TraceUI*)(o->user_data()))->m_nDepth=int( ((Fl_Slider *)o)->value() ) ;
 }
 
+void TraceUI::cb_attenConstSlides(Fl_Widget* o, void* v)
+{
+	((TraceUI*)(o->user_data()))->m_attenConst = float(((Fl_Slider *)o)->value());
+}
+
+void TraceUI::cb_attenLinearSlides(Fl_Widget* o, void* v)
+{
+	((TraceUI*)(o->user_data()))->m_attenLinear = float(((Fl_Slider *)o)->value());
+}
+
+void TraceUI::cb_attenQuadSlides(Fl_Widget* o, void* v)
+{
+	((TraceUI*)(o->user_data()))->m_attenQuad = float(((Fl_Slider *)o)->value());
+}
+
 void TraceUI::cb_render(Fl_Widget* o, void* v)
 {
 	char buffer[256];
@@ -214,10 +229,14 @@ TraceUI::TraceUI() {
 	// init.
 	m_nDepth = 0;
 	m_nSize = 150;
-	m_mainWindow = new Fl_Window(100, 40, 320, 100, "Ray <Not Loaded>");
+	m_attenConst = 0.25;
+	m_attenLinear = 0.25;
+	m_attenQuad = 0.5;
+
+	m_mainWindow = new Fl_Window(100, 40, 360, 180, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
-		m_menubar = new Fl_Menu_Bar(0, 0, 320, 25);
+		m_menubar = new Fl_Menu_Bar(0, 0, 360, 25);
 		m_menubar->menu(menuitems);
 
 		// install slider depth
@@ -245,6 +264,43 @@ TraceUI::TraceUI() {
 		m_sizeSlider->value(m_nSize);
 		m_sizeSlider->align(FL_ALIGN_RIGHT);
 		m_sizeSlider->callback(cb_sizeSlides);
+
+		m_attenConstSlider = new Fl_Value_Slider(10, 80, 180, 20, "Attenuation, Constant");
+		m_attenConstSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_attenConstSlider->type(FL_HOR_NICE_SLIDER);
+		m_attenConstSlider->labelfont(FL_COURIER);
+		m_attenConstSlider->labelsize(12);
+		m_attenConstSlider->minimum(0);
+		m_attenConstSlider->maximum(1);
+		m_attenConstSlider->step(0.01);
+		m_attenConstSlider->value(m_attenConst);
+		m_attenConstSlider->align(FL_ALIGN_RIGHT);
+		m_attenConstSlider->callback(cb_attenConstSlides);
+
+		m_attenLinearSlider = new Fl_Value_Slider(10, 105, 180, 20, "Attenuation, Linear");
+		m_attenLinearSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_attenLinearSlider->type(FL_HOR_NICE_SLIDER);
+		m_attenLinearSlider->labelfont(FL_COURIER);
+		m_attenLinearSlider->labelsize(12);
+		m_attenLinearSlider->minimum(0);
+		m_attenLinearSlider->maximum(1);
+		m_attenLinearSlider->step(0.01);
+		m_attenLinearSlider->value(m_attenLinear);
+		m_attenLinearSlider->align(FL_ALIGN_RIGHT);
+		m_attenLinearSlider->callback(cb_attenLinearSlides);
+
+		m_attenQuadSlider = new Fl_Value_Slider(10, 130, 180, 20, "Attenuation, Quadratic");
+		m_attenQuadSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_attenQuadSlider->type(FL_HOR_NICE_SLIDER);
+		m_attenQuadSlider->labelfont(FL_COURIER);
+		m_attenQuadSlider->labelsize(12);
+		m_attenQuadSlider->minimum(0);
+		m_attenQuadSlider->maximum(1);
+		m_attenQuadSlider->step(0.01);
+		m_attenQuadSlider->value(m_attenQuad);
+		m_attenQuadSlider->align(FL_ALIGN_RIGHT);
+		m_attenQuadSlider->callback(cb_attenQuadSlides);
+
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

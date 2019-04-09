@@ -1,7 +1,9 @@
 #include <cmath>
 
 #include "light.h"
-#include <xutility>
+#include "../ui/TraceUI.h"
+
+extern TraceUI* traceUI;
 
 double DirectionalLight::distanceAttenuation( const vec3f& P ) const
 {
@@ -52,8 +54,8 @@ double PointLight::distanceAttenuation( const vec3f& P ) const
 
 	double distance_squared = (P - position).length_squared();
 	double distance = sqrt(distance_squared);
-	// For future bonus, coefficient controlling linear and quad factors
-	return  1.0 / maximum(distance_squared, 1.0);
+	double inverse_distance = 1 / (traceUI->getAttenConst() + traceUI->getAttenLinear() * distance + traceUI->getAttenQuad() * distance_squared);
+	return  minimum(1, inverse_distance);
 }
 
 vec3f PointLight::getColor( const vec3f& P ) const
