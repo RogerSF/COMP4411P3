@@ -23,13 +23,14 @@ vec3f DirectionalLight::shadowAttenuation( const vec3f& P ) const
 	while (scene->intersect(r, target_intersection))
 	{
 		// Return black if the material is not transparent
-		if (target_intersection.getMaterial().kt.iszero()) return vec3f(0, 0, 0);
+		if (target_intersection.getMaterial().kt.iszero()) return intensity; // FIXME: Not sure
 
 		//use current intersection point as new light source
 		current_target = r.at(target_intersection.t);
 		r = ray(current_target, target_direction);
 		intensity = prod(intensity, target_intersection.getMaterial().kt);
 	}
+
 	return intensity;
 }
 
