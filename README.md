@@ -10,12 +10,12 @@ Specifically, each group must implement recursive ray tracing as described in cl
 
 | Progress | Extension | Foley, et al. | Alan Watt | Glassner |
 | -------- | -------- | -------- | -------- | -------- |
-| [ ] | Box Intersection | / | pp 21-22 | / |
-| [ ] | Phong specular-reflection model | 16.1 and 16.2.5 | 6.2-6.3 | / 
-| [ ] | Contribution from: multiple light sources, distance attenuation, and these additional types of lights: <br /> - Directional lights <br /> - Point lights | 16.1 (particularly in 16.1.5 and 16.1.6) | / | / |
-| [ ] | Shadow Attenuation | 16.12 and 16.4 | 9 | / |
-| [ ] | Reflection | 16.12 | 1.4 | 4.2.1 |
-| [ ] | Refraction | 16.12 | 1.4 | 4.2.3 - 4.2.7 |
+| [X] | Box Intersection | / | pp 21-22 | / |
+| [X] | Phong specular-reflection model | 16.1 and 16.2.5 | 6.2-6.3 | / 
+| [X] | Contribution from: multiple light sources, distance attenuation, and these additional types of lights: <br /> - Directional lights <br /> - Point lights | 16.1 (particularly in 16.1.5 and 16.1.6) | / | / |
+| [X] | Shadow Attenuation | 16.12 and 16.4 | 9 | / |
+| [X] | Reflection | 16.12 | 1.4 | 4.2.1 |
+| [X] | Refraction | 16.12 | 1.4 | 4.2.3 - 4.2.7 |
 
 Your ray tracer should recursively trace rays to account for these. Recursion should proceed to a maximum depth as set by the user.
 

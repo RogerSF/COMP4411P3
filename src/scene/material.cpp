@@ -19,37 +19,35 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
 	// return kd;
-	vec3f transparency = vec3f(1, 1, 1) - kt;
 	vec3f intersect_position = r.at(i.t);
-	vec3f out_position = intersect_position + i.N * RAY_EPSILON;
-	vec3f specularSum;
+	vec3f result = ke + ka;
 
 	for(Scene::cliter light_it = scene->beginLights(); light_it != scene->endLights(); ++light_it)
 	{
 		Light* light = *light_it;
+		const double distance_attenuation = light->distanceAttenuation(intersect_position);
+		const vec3f shadow_attenuation = light->shadowAttenuation(intersect_position);
+		vec3f attenuation = distance_attenuation * shadow_attenuation;
 		vec3f light_direction = light->getDirection(intersect_position).normalize();
 		vec3f normal = i.N.normalize();
 
 		// Phong diffuse reflection equation
 		// kd * lambertian (angle between normal and light direction)
-		vec3f diffuse_reflection = prod(transparency, kd) * maximum(normal.dot(light_direction), 0);
+		vec3f diffuse_reflection = kd * maximum(normal.dot(light_direction), 0);
 
 		// Negate the reflected light vector to get vector pointing out the surface
 		// This is because the origin light ray points towards the surface
 		// and the immediate reflection of this will result in a ray pointing towards the surface too
-		vec3f reflected_light = (light_direction - 2 * ((light_direction).dot(normal)) * normal).normalize();
+		vec3f reflected_light = (light_direction - 2 * (-(light_direction).dot(normal)) * normal).normalize();
 		// Negate the ray vector to get vector pointing to the ray origin
 		vec3f view_vector = r.getDirection().normalize();
 
 		// Phong specular reflection equation
 		vec3f specular_reflection = ks * pow(maximum(reflected_light.dot(view_vector), 0), shininess);
-		const double distance_attenuation = light->distanceAttenuation(intersect_position);
-		const vec3f shadow_attenuation = light->shadowAttenuation(out_position);
 
-		specularSum += prod((distance_attenuation * shadow_attenuation), (diffuse_reflection + specular_reflection));
+		result += prod(attenuation, diffuse_reflection + specular_reflection);
 	}
 
-	vec3f result = ke + ka + specularSum;
 	result = result.clamp();
 
 	return result;
