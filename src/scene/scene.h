@@ -270,7 +270,9 @@ public:
         
 	Camera *getCamera() { return &camera; }
 
-	
+	void setAttenConst(float atten);
+	void setAttenLinear(float atten);
+	void setAttenQuad(float atten);
 
 private:
     list<Geometry*> objects;

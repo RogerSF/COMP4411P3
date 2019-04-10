@@ -56,7 +56,7 @@ double PointLight::distanceAttenuation( const vec3f& P ) const
 	double distance_squared = (P - position).length_squared();
 	double distance = sqrt(distance_squared);
 	double inverse_distance = 1 / (traceUI->getAttenConst() + traceUI->getAttenLinear() * distance + traceUI->getAttenQuad() * distance_squared);
-	return  minimum(1, inverse_distance);
+	return minimum(1, inverse_distance);
 }
 
 vec3f PointLight::getColor( const vec3f& P ) const

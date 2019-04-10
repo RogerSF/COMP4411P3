@@ -44,6 +44,9 @@ public:
 
 	int			getSize();
 	int			getDepth();
+	void		setAttenConst(float atten) { this->m_attenConstSlider->value(atten); }
+	void		setAttenLinear(float atten) { this->m_attenLinearSlider ->value(atten); }
+	void		setAttenQuad(float atten) { this->m_attenQuadSlider->value(atten); }
 	float		getAttenConst() { return this->m_attenConst;  }
 	float		getAttenLinear() { return this->m_attenLinear; }
 	float		getAttenQuad() { return this->m_attenQuad; }

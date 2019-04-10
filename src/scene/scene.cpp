@@ -199,3 +199,19 @@ void Scene::initScene()
 			nonboundedobjects.push_back(*j);
 	}
 }
+
+void Scene::setAttenConst(float atten)
+{
+	traceUI->setAttenConst(atten);
+}
+
+void Scene::setAttenLinear(float atten)
+{
+	traceUI->setAttenLinear(atten);
+}
+
+void Scene::setAttenQuad(float atten)
+{
+	traceUI->setAttenQuad(atten);
+}
+
