@@ -1,65 +1,40 @@
-#include "Box.h"
 #include <cmath>
-#include <limits>
+#include <assert.h>
 
-bool Box::intersectLocal( const ray& r, isect& i ) const
+#include "Box.h"
+#include "../vecmath/vecmath.h"
+
+bool Box::intersectLocal(const ray& r, isect& i) const
 {
-	// Algorithm amended from U of Utah: http://www.cs.utah.edu/~awilliam/box/box.pdf
+	double tMin, tMax;
+	bool intersected = ComputeLocalBoundingBox().intersect(r, tMin, tMax);
+	if (intersected) {
+		double intersectT = (tMin < 0) ? tMax : tMin;
 
-	i.obj = this;
+		vec3f intersection = r.at(intersectT);
 
-	std::numeric_limits<double> limit;
-	double tmin = -limit.infinity();
-	double tmax = limit.infinity();
-	double curTmin, curTmax;
-
-	vec3f nmin, nmax;
-
-	vec3f& rayOrigin = r.getPosition();
-	vec3f& rayDirection = r.getDirection();
-
-	double lowerBound = -0.5, upperBound = 0.5;
-
-	// Loop through as
-	for (int i = 0; i < 3; ++i)
-	{
-		// Parallel case
-		if (abs(rayDirection[i]) < RAY_EPSILON) {
-			if (rayOrigin[i] < lowerBound || rayOrigin[i] > upperBound) {
-				return false;
-			}
+		if (abs(intersection[0] - 0.5) < NORMAL_EPSILON) {
+			i.setN(vec3f(1, 0, 0));
+		}
+		else if (abs(intersection[0] + 0.5) < NORMAL_EPSILON) {
+			i.setN(vec3f(-1, 0, 0));
+		}
+		else if (abs(intersection[1] - 0.5) < NORMAL_EPSILON) {
+			i.setN(vec3f(0, 1, 0));
+		}
+		else if (abs(intersection[1] + 0.5) < NORMAL_EPSILON) {
+			i.setN(vec3f(0, -1, 0));
+		}
+		else if (abs(intersection[2] - 0.5) < NORMAL_EPSILON) {
+			i.setN(vec3f(0, 0, 1));
+		}
+		else if (abs(intersection[2] + 0.5) < NORMAL_EPSILON) {
+			i.setN(vec3f(0, 0, -1));
 		}
 
-		vec3f curNmin, curNmax;
-
-		if (rayDirection[i] >= 0) {
-			curTmin = (lowerBound - rayOrigin[i]) / rayDirection[i];
-			curTmax = (upperBound - rayOrigin[i]) / rayDirection[i];
-			curNmin[i] = -1;
-			curNmax[i] = 1;
-		}
-		else {
-			curTmin = (upperBound - rayOrigin[i]) / rayDirection[i];
-			curTmax = (lowerBound - rayOrigin[i]) / rayDirection[i];
-			curNmin[i] = 1;
-			curNmax[i] = -1;
-		}
-
-		if (tmin > curTmax || curTmin > tmax)
-			return false;
-
-		if (curTmin > tmin) {
-			tmin = curTmin;
-			nmin = curNmin;
-		}
-
-		if (curTmax < tmax) {
-			tmax = curTmax;
-			nmax = curNmax;
-		}
+		i.t = intersectT;
+		i.obj = this;
+		return true;
 	}
-
-	i.setT(tmin);
-	i.setN(nmin);
-	return true;
+	return false;
 }

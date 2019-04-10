@@ -25,9 +25,9 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
 	for(Scene::cliter light_it = scene->beginLights(); light_it != scene->endLights(); ++light_it)
 	{
-		Light* light = *light_it;
+		const Light* light = *light_it;
 		const double distance_attenuation = light->distanceAttenuation(intersect_position);
-		const vec3f shadow_attenuation = light->shadowAttenuation(intersect_position);
+		const vec3f shadow_attenuation = light->shadowAttenuation(intersect_position + i.N * RAY_EPSILON);
 		vec3f attenuation = distance_attenuation * shadow_attenuation;
 		vec3f light_direction = light->getDirection(intersect_position).normalize();
 
