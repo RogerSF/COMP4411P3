@@ -229,9 +229,9 @@ TraceUI::TraceUI() {
 	// init.
 	m_nDepth = 0;
 	m_nSize = 150;
-	m_attenConst = 0.25;
-	m_attenLinear = 0.25;
-	m_attenQuad = 0.5;
+	m_attenConst = 0.2;
+	m_attenLinear = 0.1;
+	m_attenQuad = 0.01;
 
 	m_mainWindow = new Fl_Window(100, 40, 360, 180, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
