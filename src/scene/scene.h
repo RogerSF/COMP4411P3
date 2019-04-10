@@ -16,6 +16,7 @@ using namespace std;
 #include "material.h"
 #include "camera.h"
 #include "../vecmath/vecmath.h"
+#include <vector>
 
 class Light;
 class Scene;
@@ -212,6 +213,8 @@ class SceneObject
 public:
 	virtual const Material& getMaterial() const = 0;
 	virtual void setMaterial( Material *m ) = 0;
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const { return false; }// returns true only if this sceneobject supports texture mapping
+	
 
 protected:
 	SceneObject( Scene *scene )
@@ -228,6 +231,9 @@ public:
 
 	virtual const Material& getMaterial() const { return *material; }
 	virtual void setMaterial( Material *m )	{ material = m; }
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const {
+		return false; // Only true if the object supports texture
+	}
 
 protected:
 	MaterialSceneObject( Scene *scene, Material *mat ) 
@@ -248,10 +254,17 @@ public:
 	typedef list<Geometry*>::const_iterator cgiter;
 
     TransformRoot transformRoot;
+	vec3f ambientLight;
 
 public:
 	Scene() 
-		: transformRoot(), objects(), lights() {}
+		: transformRoot(), objects(), lights() {
+		constAttenFactor = 1.0;
+		linearAttenFactor = 1.0;
+		quadAttenFactor = 1.0;
+		textureImg = NULL;
+		ambientLight = vec3f(1.0, 1.0, 1.0);
+	}
 	virtual ~Scene();
 
 	void add( Geometry* obj )
@@ -267,10 +280,27 @@ public:
 
 	list<Light*>::const_iterator beginLights() const { return lights.begin(); }
 	list<Light*>::const_iterator endLights() const { return lights.end(); }
-        
+	list<Geometry*>::iterator beginGeometries() { return objects.begin(); }
+	list<Geometry*>::iterator endGeometries() { return objects.end(); }
+	
 	Camera *getCamera() { return &camera; }
 
-	
+	double constAttenFactor;
+	double linearAttenFactor;
+	double quadAttenFactor;
+	void setTexture(unsigned char* tex);
+	unsigned char* getTexture();
+	void setTextureWidth(int w);
+	void setTextureHeight(int h);
+	int getTextureWidth();
+	int getTextureHeight();
+	vec3f getTextureColor(double x, double y);
+	vec3f getBitmapColor(unsigned char* bitmap, int bmpwidth, int bmpheight, double x, double y);	//given two values 0.0~1.0, returns the corresponding color in bitmap
+	vec3f getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
+	double getPixelIntensity(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
+
+	void setTextureMapping(bool tm);
+	bool getTextureMapping();
 
 private:
     list<Geometry*> objects;
@@ -278,6 +308,11 @@ private:
 	list<Geometry*> boundedobjects;
     list<Light*> lights;
     Camera camera;
+
+	bool textureMapping;
+	unsigned char* textureImg;	//texture image, shared with the one loaded to Trace UI
+	int textureWidth;
+	int textureHeight;
 	
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()

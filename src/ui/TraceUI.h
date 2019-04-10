@@ -15,8 +15,13 @@
 #include <FL/Fl_Button.H>
 
 #include <FL/fl_file_chooser.H>		// FLTK file chooser
+#include "../fileio/bitmap.h"
 
 #include "TraceGLWindow.h"
+#include "../scene/light.h"
+#include "../RayTracer.h"
+class RayTracer;
+class TraceGLWindow;
 
 class TraceUI {
 public:
@@ -31,6 +36,14 @@ public:
 	Fl_Slider*			m_attenConstSlider;
 	Fl_Slider*			m_attenLinearSlider;
 	Fl_Slider*			m_attenQuadSlider;
+	Fl_Slider*			m_numSubPixelsSlider;
+	Fl_Slider*			m_ambientLightSlider;
+
+	Fl_Light_Button*	m_enableBackgroundButton;
+	Fl_Light_Button*	m_enableAntialiasingButton;
+	Fl_Light_Button*	m_enableJitteringButton;
+	Fl_Light_Button*	m_enableTextureMappingButton;
+	
 
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
@@ -40,22 +53,41 @@ public:
 	// member functions
 	void show();
 
-	void		setRayTracer(RayTracer *tracer);
+	void			setRayTracer(RayTracer *tracer);
 
 	int			getSize();
 	int			getDepth();
-	float		getAttenConst() { return this->m_attenConst;  }
-	float		getAttenLinear() { return this->m_attenLinear; }
-	float		getAttenQuad() { return this->m_attenQuad; }
+	float			getAttenConst() { return this->m_attenConst;  }
+	float			getAttenLinear() { return this->m_attenLinear; }
+	float			getAttenQuad() { return this->m_attenQuad; }
+
+	unsigned char* backgroundImg;	//for bonus
+	unsigned char* textureImg;	//for bonus
+	int 					textureWidth;
+	int 					textureHeight;
+
+	bool			getEnableBackground();
+	bool			getEnableAntialiasing();
+	bool			getEnableJittering();
+	bool			getEnableTextureMapping();
+
+	int			getNumSubpixels();
 
 private:
 	RayTracer*	raytracer;
 
 	int			m_nSize;
 	int			m_nDepth;
-	float		m_attenConst;
-	float		m_attenLinear;
-	float		m_attenQuad;
+	int 			m_numSubPixels;
+	float			m_attenConst;
+	float			m_attenLinear;
+	float			m_attenQuad;
+	float			ambientLight;
+
+	bool			m_enableBackground;
+	bool			m_enableAntialiasing;
+	bool			m_enableJittering;
+	bool			m_enableTextureMapping;
 
 // static class members
 	static Fl_Menu_Item menuitems[];
@@ -64,6 +96,8 @@ private:
 
 	static void cb_load_scene(Fl_Menu_* o, void* v);
 	static void cb_save_image(Fl_Menu_* o, void* v);
+	static void cb_load_background(Fl_Menu_* o, void* v);
+	static void cb_load_texture(Fl_Menu_* o, void* v);
 	static void cb_exit(Fl_Menu_* o, void* v);
 	static void cb_about(Fl_Menu_* o, void* v);
 
@@ -74,6 +108,14 @@ private:
 	static void cb_attenConstSlides(Fl_Widget* o, void* v);
 	static void cb_attenLinearSlides(Fl_Widget* o, void* v);
 	static void cb_attenQuadSlides(Fl_Widget* o, void* v);
+
+	static void cb_enableBackground(Fl_Widget* o, void* v);
+	static void cb_enableJittering(Fl_Widget* o, void* v);
+	static void cb_enableAntialiasing(Fl_Widget* o, void* v);
+	static void cb_enableTextureMapping(Fl_Widget* o, void* v);
+	static void cb_numSubPixelsSlides(Fl_Widget* o, void* v);
+	static void cb_ambientLightSlides(Fl_Widget* o, void* v);
+
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

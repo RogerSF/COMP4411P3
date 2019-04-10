@@ -9,7 +9,9 @@
 #include "fileio/read.h"
 #include "fileio/parse.h"
 #include "ui/TraceUI.h"
+#include <iostream>
 
+using namespace std;
 extern TraceUI* traceUI;
 
 // Trace a top-level ray through normalized window coordinates (x,y)
@@ -113,11 +115,19 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		final_intensity = final_intensity.clamp();
 		return final_intensity;
 	} else {
-		// No intersection.  This ray travels to infinity, so we color
-		// it according to the background color, which in this (simple) case
-		// is just black.
+		// No intersection. Return background color
+		if (this->backgroundImg  && traceUI->getEnableBackground()) {
+			vec3f camerau = scene->getCamera()->getU();
+			vec3f camerav = scene->getCamera()->getV();
+			double projRayontoU = (r.getDirection() * camerau);
+			double projRayontoV = (r.getDirection() * camerav);
 
-		return vec3f( 0.0, 0.0, 0.0 );
+			return getBackgroundColor(projRayontoU + 0.5, projRayontoV + 0.5);
+		}
+		else {
+			return vec3f(0.0f, 0.0, 0.0f);
+
+		}
 	}
 }
 
@@ -128,6 +138,9 @@ RayTracer::RayTracer()
 	scene = NULL;
 
 	m_bSceneLoaded = false;
+	depthLimit = 0;
+	backgroundImg = NULL;
+	m_pUI = NULL;
 }
 
 
@@ -152,6 +165,46 @@ double RayTracer::aspectRatio()
 bool RayTracer::sceneLoaded()
 {
 	return m_bSceneLoaded;
+}
+
+Scene * RayTracer::getScene()
+{
+	return this->scene;
+}
+
+void RayTracer::setBackgroundImg(unsigned char * img)
+{
+	this->backgroundImg = img;
+}
+
+void RayTracer::setDepthLimit(int depthLim)
+{
+	if (depthLimit != depthLim) {
+		depthLimit = depthLim;
+	}
+}
+
+vec3f RayTracer::getBackgroundColor(double x, double y)
+{
+	if (this->backgroundImg == NULL || x < 0 || x>1 || y < 0 || y>1) {
+		return vec3f(0.0f, 0.0f, 0.0f);
+
+	}
+	else {
+		int pixelx = x * buffer_width;
+		int pixely = y * buffer_height;
+		unsigned char* pixel = backgroundImg + (pixelx + pixely * buffer_width) * 3;
+		int r = (int)*pixel;
+		int g = (int)*(pixel + 1);
+		int b = (int)*(pixel + 2);
+		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
+		//return vec3f(0.5f, 0.5f, 0.5f).clamp();
+	}
+}
+
+void RayTracer::setUI(TraceUI * ui)
+{
+	m_pUI = ui;
 }
 
 bool RayTracer::loadScene( char* fn )
@@ -222,8 +275,49 @@ void RayTracer::tracePixel( int i, int j )
 
 	double x = double(i)/double(buffer_width);
 	double y = double(j)/double(buffer_height);
+	double atomicx = double(1) / double(buffer_width);	//corresponding length of one pixel
+	double atomicy = double(1) / double(buffer_height);
 
-	col = trace( scene,x,y );
+	
+	if (traceUI->getEnableAntialiasing()) {	//only return color of central x & central y
+		//if (traceUI->getAdaptiveSupersampling()) {
+		//	col = getAdaptivelySupersampledColor(scene, x, y, 1);	//it's much faster. the effect is similar to non-adaptive supersampling with 4/5 subpixels, which is super expensive
+		//}
+		//else {		//non-adaptive supersampling
+			int numSubpixels = traceUI->getNumSubpixels();
+			cout << numSubpixels << endl;
+			double startx = x - 0.5 / double(buffer_width);
+			double starty = y - 0.5 / double(buffer_height);
+
+			double xstep = (1.0 / double(buffer_width)) / double(numSubpixels - 1);
+			double ystep = (1.0 / double(buffer_height)) / double(numSubpixels - 1);
+
+			for (int i = 0; i < numSubpixels; i++) {
+				for (int j = 0; j < numSubpixels; j++) {
+					if (traceUI->getEnableJittering()) {	//random direction witin +- one atomic range
+						double offsetCoeff = ((double)rand() / (RAND_MAX)) * 2 - 1;
+						col = trace(scene, startx + xstep * i + offsetCoeff * atomicx, starty + ystep * j + offsetCoeff * atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
+					}
+					else {//determined direction
+						col += trace(scene, startx + xstep * i, starty + ystep * j) / (numSubpixels*numSubpixels);
+					}
+				}
+			}
+		//}
+
+	}
+	else {
+		if (traceUI->getEnableJittering()) {
+			double offsetCoeff = ((double)rand() / (RAND_MAX)) * 2 - 1;
+			col = trace(scene, x + offsetCoeff * atomicx, y + offsetCoeff * atomicy);//the point to trace is a random point between x,y plus/minus one atomic length
+		}
+		else {
+			col = trace(scene, x, y);
+		}
+	}
+	
+
+	// col = trace(scene, x, y);
 
 	unsigned char *pixel = buffer + ( i + j * buffer_width ) * 3;
 

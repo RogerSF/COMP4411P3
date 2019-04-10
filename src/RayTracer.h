@@ -5,7 +5,9 @@
 
 #include "scene/scene.h"
 #include "scene/ray.h"
+#include "ui/TraceUI.h"
 #include <deque>
+class TraceUI;
 
 class RayTracer
 {
@@ -26,15 +28,27 @@ public:
 	bool loadScene( char* fn );
 
 	bool sceneLoaded();
+	Scene* getScene();
+	void setBackgroundImg(unsigned char* img);
+	void setDepthLimit(int depthLim);
+
+	vec3f getBackgroundColor(double x, double y);
+	void setUI(TraceUI* ui);
 
 private:
 	unsigned char *buffer;
 	int buffer_width, buffer_height;
 	int bufferSize;
 	Scene *scene;
+	int depthLimit;
+	unsigned char* backgroundImg;
 
 	bool m_bSceneLoaded;
     std::deque<const Material*> material_stack;
+
+	const int adaSupLimit = 6;
+
+	TraceUI* m_pUI;
 };
 
 #endif // __RAYTRACER_H__

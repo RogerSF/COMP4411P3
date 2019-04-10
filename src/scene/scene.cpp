@@ -1,8 +1,11 @@
 #include <cmath>
+#include <fstream>
+#include <strstream>
 
 #include "scene.h"
 #include "light.h"
 #include "../ui/TraceUI.h"
+#include "../SceneObjects/trimesh.h"
 extern TraceUI* traceUI;
 
 void BoundingBox::operator=(const BoundingBox& target)
@@ -199,3 +202,85 @@ void Scene::initScene()
 			nonboundedobjects.push_back(*j);
 	}
 }
+
+void Scene::setTexture(unsigned char * tex)
+{
+	this->textureImg = tex;
+}
+
+unsigned char * Scene::getTexture()
+{
+	return this->textureImg;
+}
+
+void Scene::setTextureWidth(int w)
+{
+	this->textureWidth = w;
+}
+
+void Scene::setTextureHeight(int h)
+{
+	textureHeight = h;
+}
+
+int Scene::getTextureWidth()
+{
+	return this->textureWidth;
+}
+
+int Scene::getTextureHeight()
+{
+	return this->textureHeight;
+}
+
+vec3f Scene::getTextureColor(double x, double y)
+{
+	return getBitmapColor(this->textureImg, this->textureWidth, this->textureHeight, x, y);
+}
+
+
+vec3f Scene::getBitmapColor(unsigned char * bitmap, int bmpwidth, int bmpheight, double x, double y)
+{
+	if (bitmap && x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+		int pixelx = min(bmpwidth - 1, int(x*bmpwidth));
+		int pixely = min(bmpheight - 1, int(y*bmpheight));
+		unsigned char* pixel = bitmap + (pixelx + pixely * bmpwidth) * 3;
+		int r = (int)*pixel;
+		int g = (int)*(pixel + 1);
+		int b = (int)*(pixel + 2);
+		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
+	}
+	else {
+		return vec3f(0.0f, 0.0f, 0.0f);
+	}
+}
+vec3f Scene::getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y) {
+	if (bitmap && x >= 0 && x < bmpwidth && y >= 0 && y <= bmpheight) {
+		unsigned char* pixel = bitmap + (x + y * bmpwidth) * 3;
+		int r = (int)*pixel;
+		int g = (int)*(pixel + 1);
+		int b = (int)*(pixel + 2);
+		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
+	}
+	else {
+		return vec3f(0.0, 0.0, 0.0);
+	}
+}
+
+double Scene::getPixelIntensity(unsigned char * bitmap, int bmpwidth, int bmpheight, int x, int y)
+{
+	vec3f color = getBitmapColorFromPixel(bitmap, bmpwidth, bmpheight, x, y);
+	return 0.299*color[0] + 0.587*color[1] + 0.114*color[2];
+}
+
+
+void Scene::setTextureMapping(bool tm)
+{
+	this->textureMapping = tm;
+}
+
+bool Scene::getTextureMapping()
+{
+	return this->textureMapping;
+}
+
