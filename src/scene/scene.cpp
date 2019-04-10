@@ -282,5 +282,19 @@ void Scene::setTextureMapping(bool tm)
 bool Scene::getTextureMapping()
 {
 	return this->textureMapping;
+
 }
 
+void Scene::setAttenConst(float atten)
+{
+	traceUI->setAttenConst(atten);
+}
+
+void Scene::setAttenLinear(float atten)
+{
+	traceUI->setAttenLinear(atten);
+}
+
+void Scene::setAttenQuad(float atten)
+{
+	traceUI->setAttenQuad(atten);

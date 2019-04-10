@@ -359,9 +359,10 @@ TraceUI::TraceUI() {
 	// init.
 	m_nDepth = 0;
 	m_nSize = 150;
-	m_attenConst = 0.25;
-	m_attenLinear = 0.25;
-	m_attenQuad = 0.5;
+
+	m_attenConst = 0.2;
+	m_attenLinear = 0.1;
+	m_attenQuad = 0.01;
 	backgroundImg = NULL;
 	m_enableBackground = false;
 	m_enableAntialiasing = false;
@@ -374,6 +375,7 @@ TraceUI::TraceUI() {
 	ambientLight = 1.0f;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 500, "Ray <Not Loaded>");
+
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
 		m_menubar = new Fl_Menu_Bar(0, 0, 400, 25);

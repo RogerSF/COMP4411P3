@@ -302,6 +302,10 @@ public:
 	void setTextureMapping(bool tm);
 	bool getTextureMapping();
 
+	void setAttenConst(float atten);
+	void setAttenLinear(float atten);
+	void setAttenQuad(float atten);
+
 private:
     list<Geometry*> objects;
 	list<Geometry*> nonboundedobjects;

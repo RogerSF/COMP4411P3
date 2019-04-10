@@ -57,9 +57,13 @@ public:
 
 	int			getSize();
 	int			getDepth();
-	float			getAttenConst() { return this->m_attenConst;  }
-	float			getAttenLinear() { return this->m_attenLinear; }
-	float			getAttenQuad() { return this->m_attenQuad; }
+
+	void		setAttenConst(float atten) { this->m_attenConst = atten; this->m_attenConstSlider->value(atten); }
+	void		setAttenLinear(float atten) { this->m_attenLinear = atten; this->m_attenLinearSlider->value(atten); }
+	void		setAttenQuad(float atten) { this->m_attenQuad = atten; this->m_attenQuadSlider->value(atten); }
+	float		getAttenConst() { return this->m_attenConst;  }
+	float		getAttenLinear() { return this->m_attenLinear; }
+	float		getAttenQuad() { return this->m_attenQuad; }
 
 	unsigned char* backgroundImg;	//for bonus
 	unsigned char* textureImg;	//for bonus
@@ -72,6 +76,7 @@ public:
 	bool			getEnableTextureMapping();
 
 	int			getNumSubpixels();
+
 
 private:
 	RayTracer*	raytracer;
