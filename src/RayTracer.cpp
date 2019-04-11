@@ -121,12 +121,12 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 			vec3f camerav = scene->getCamera()->getV();
 			double projRayontoU = (r.getDirection() * camerau);
 			double projRayontoV = (r.getDirection() * camerav);
+			// cout << backgroundImg << endl;
 
 			return getBackgroundColor(projRayontoU + 0.5, projRayontoV + 0.5);
 		}
 		else {
 			return vec3f(0.0f, 0.0, 0.0f);
-
 		}
 	}
 }
@@ -197,6 +197,7 @@ vec3f RayTracer::getBackgroundColor(double x, double y)
 		int r = (int)*pixel;
 		int g = (int)*(pixel + 1);
 		int b = (int)*(pixel + 2);
+		// cout << (float)r / float(255) << ", " << (float)g / float(255) << ", " << (float)b / float(255) << endl;
 		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
 		//return vec3f(0.5f, 0.5f, 0.5f).clamp();
 	}
@@ -280,12 +281,9 @@ void RayTracer::tracePixel( int i, int j )
 
 	
 	if (traceUI->getEnableAntialiasing()) {	//only return color of central x & central y
-		//if (traceUI->getAdaptiveSupersampling()) {
-		//	col = getAdaptivelySupersampledColor(scene, x, y, 1);	//it's much faster. the effect is similar to non-adaptive supersampling with 4/5 subpixels, which is super expensive
-		//}
-		//else {		//non-adaptive supersampling
+		
 			int numSubpixels = traceUI->getNumSubpixels();
-			cout << numSubpixels << endl;
+			// cout << numSubpixels << endl;
 			double startx = x - 0.5 / double(buffer_width);
 			double starty = y - 0.5 / double(buffer_height);
 
@@ -303,8 +301,6 @@ void RayTracer::tracePixel( int i, int j )
 					}
 				}
 			}
-		//}
-
 	}
 	else {
 		if (traceUI->getEnableJittering()) {

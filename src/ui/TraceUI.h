@@ -48,51 +48,51 @@ public:
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
 
-	TraceGLWindow*		m_traceGlWindow;
+	TraceGLWindow*	m_traceGlWindow;
 
 	// member functions
 	void show();
 
-	void			setRayTracer(RayTracer *tracer);
+	void						setRayTracer(RayTracer *tracer);
 
-	int			getSize();
-	int			getDepth();
+	int						getSize();
+	int						getDepth();
 
-	void		setAttenConst(float atten) { this->m_attenConst = atten; this->m_attenConstSlider->value(atten); }
-	void		setAttenLinear(float atten) { this->m_attenLinear = atten; this->m_attenLinearSlider->value(atten); }
-	void		setAttenQuad(float atten) { this->m_attenQuad = atten; this->m_attenQuadSlider->value(atten); }
-	float		getAttenConst() { return this->m_attenConst;  }
-	float		getAttenLinear() { return this->m_attenLinear; }
-	float		getAttenQuad() { return this->m_attenQuad; }
+	void						setAttenConst(float atten) { this->m_attenConst = atten; this->m_attenConstSlider->value(atten); }
+	void						setAttenLinear(float atten) { this->m_attenLinear = atten; this->m_attenLinearSlider->value(atten); }
+	void						setAttenQuad(float atten) { this->m_attenQuad = atten; this->m_attenQuadSlider->value(atten); }
+	float						getAttenConst() { return this->m_attenConst;  }
+	float						getAttenLinear() { return this->m_attenLinear; }
+	float						getAttenQuad() { return this->m_attenQuad; }
 
-	unsigned char* backgroundImg;	//for bonus
-	unsigned char* textureImg;	//for bonus
-	int 					textureWidth;
-	int 					textureHeight;
+	unsigned char*		backgroundImg;	//for bonus
+	unsigned char*		textureImg;	//for bonus
+	int 						textureWidth;
+	int 						textureHeight;
 
-	bool			getEnableBackground();
-	bool			getEnableAntialiasing();
-	bool			getEnableJittering();
-	bool			getEnableTextureMapping();
+	bool						getEnableBackground();
+	bool						getEnableAntialiasing();
+	bool						getEnableJittering();
+	bool						getEnableTextureMapping();
 
-	int			getNumSubpixels();
+	int						getNumSubpixels();
 
 
 private:
-	RayTracer*	raytracer;
+	RayTracer*			raytracer;
 
-	int			m_nSize;
-	int			m_nDepth;
-	int 			m_numSubPixels;
-	float			m_attenConst;
-	float			m_attenLinear;
-	float			m_attenQuad;
-	float			ambientLight;
+	int						m_nSize;
+	int						m_nDepth;
+	int 						m_numSubPixels;
+	float						m_attenConst;
+	float						m_attenLinear;
+	float						m_attenQuad;
+	float						ambientLight;
 
-	bool			m_enableBackground;
-	bool			m_enableAntialiasing;
-	bool			m_enableJittering;
-	bool			m_enableTextureMapping;
+	bool						m_enableBackground;
+	bool						m_enableAntialiasing;
+	bool						m_enableJittering;
+	bool						m_enableTextureMapping;
 
 // static class members
 	static Fl_Menu_Item menuitems[];

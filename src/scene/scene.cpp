@@ -1,12 +1,14 @@
 #include <cmath>
 #include <fstream>
 #include <strstream>
+#include <iostream>
 
 #include "scene.h"
 #include "light.h"
 #include "../ui/TraceUI.h"
 #include "../SceneObjects/trimesh.h"
 extern TraceUI* traceUI;
+using namespace std;
 
 void BoundingBox::operator=(const BoundingBox& target)
 {
@@ -76,7 +78,6 @@ bool BoundingBox::intersect(const ray& r, double& tMin, double& tMax) const
 	return true; // it made it past all 3 axes.
 }
 
-
 bool Geometry::intersect(const ray&r, isect&i) const
 {
     // Transform the ray into the object's local coordinate space
@@ -96,7 +97,6 @@ bool Geometry::intersect(const ray&r, isect&i) const
     } else {
         return false;
     }
-    
 }
 
 bool Geometry::intersectLocal( const ray& r, isect& i ) const
@@ -169,8 +169,6 @@ bool Scene::intersect( const ray& r, isect& i ) const
 			}
 		}
 	}
-
-
 	return have_one;
 }
 
@@ -178,6 +176,7 @@ void Scene::initScene()
 {
 	bool first_boundedobject = true;
 	BoundingBox b;
+	ambientLight = vec3f(1.0, 1.0, 1.0);
 	
 	typedef list<Geometry*>::const_iterator iter;
 	// split the objects into two categories: bounded and non-bounded
@@ -185,7 +184,6 @@ void Scene::initScene()
 		if( (*j)->hasBoundingBoxCapability() )
 		{
 			boundedobjects.push_back(*j);
-
 			// widen the scene's bounding box, if necessary
 			if (first_boundedobject) {
 				sceneBounds = (*j)->getBoundingBox();
@@ -248,6 +246,7 @@ vec3f Scene::getBitmapColor(unsigned char * bitmap, int bmpwidth, int bmpheight,
 		int r = (int)*pixel;
 		int g = (int)*(pixel + 1);
 		int b = (int)*(pixel + 2);
+		// cout << "Texture Color: " << (float)r / float(255) << endl;
 		return vec3f((float)r / float(255), (float)g / 255.0f, (float)b / 255.0f).clamp();
 	}
 	else {
@@ -298,3 +297,4 @@ void Scene::setAttenLinear(float atten)
 void Scene::setAttenQuad(float atten)
 {
 	traceUI->setAttenQuad(atten);
+}

@@ -46,7 +46,7 @@ private:
 	bool m_bSceneLoaded;
     std::deque<const Material*> material_stack;
 
-	const int adaSupLimit = 6;
+	// const int adaSupLimit = 6;
 
 	TraceUI* m_pUI;
 };

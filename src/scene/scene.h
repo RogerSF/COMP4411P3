@@ -247,7 +247,7 @@ protected:
 class Scene
 {
 public:
-	typedef list<Light*>::iterator 			liter;
+	typedef list<Light*>::iterator 				liter;
 	typedef list<Light*>::const_iterator 	cliter;
 
 	typedef list<Geometry*>::iterator 		giter;
@@ -259,9 +259,7 @@ public:
 public:
 	Scene() 
 		: transformRoot(), objects(), lights() {
-		constAttenFactor = 1.0;
-		linearAttenFactor = 1.0;
-		quadAttenFactor = 1.0;
+		
 		textureImg = NULL;
 		ambientLight = vec3f(1.0, 1.0, 1.0);
 	}
@@ -278,50 +276,49 @@ public:
 	bool intersect( const ray& r, isect& i ) const;
 	void initScene();
 
-	list<Light*>::const_iterator beginLights() const { return lights.begin(); }
+	list<Light*>::const_iterator	beginLights() const { return lights.begin(); }
 	list<Light*>::const_iterator endLights() const { return lights.end(); }
-	list<Geometry*>::iterator beginGeometries() { return objects.begin(); }
-	list<Geometry*>::iterator endGeometries() { return objects.end(); }
+	list<Geometry*>::iterator		beginGeometries() { return objects.begin(); }
+	list<Geometry*>::iterator		endGeometries() { return objects.end(); }
 	
-	Camera *getCamera() { return &camera; }
+	Camera *								getCamera() { return &camera; }
 
-	double constAttenFactor;
-	double linearAttenFactor;
-	double quadAttenFactor;
-	void setTexture(unsigned char* tex);
-	unsigned char* getTexture();
-	void setTextureWidth(int w);
-	void setTextureHeight(int h);
-	int getTextureWidth();
-	int getTextureHeight();
-	vec3f getTextureColor(double x, double y);
-	vec3f getBitmapColor(unsigned char* bitmap, int bmpwidth, int bmpheight, double x, double y);	//given two values 0.0~1.0, returns the corresponding color in bitmap
-	vec3f getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
-	double getPixelIntensity(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
+	
+	void										setTexture(unsigned char* tex);
+	unsigned char*						getTexture();
+	void										setTextureWidth(int w);
+	void										setTextureHeight(int h);
+	int										getTextureWidth();
+	int										getTextureHeight();
 
-	void setTextureMapping(bool tm);
-	bool getTextureMapping();
+	vec3f									getTextureColor(double x, double y);
+	vec3f									getBitmapColor(unsigned char* bitmap, int bmpwidth, int bmpheight, double x, double y);	//given two values 0.0~1.0, returns the corresponding color in bitmap
+	vec3f									getBitmapColorFromPixel(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
+	double 									getPixelIntensity(unsigned char* bitmap, int bmpwidth, int bmpheight, int x, int y);
 
-	void setAttenConst(float atten);
-	void setAttenLinear(float atten);
-	void setAttenQuad(float atten);
+	void 										setTextureMapping(bool tm);
+	bool 										getTextureMapping();
+
+	void 										setAttenConst(float atten);
+	void 										setAttenLinear(float atten);
+	void 										setAttenQuad(float atten);
 
 private:
-    list<Geometry*> objects;
-	list<Geometry*> nonboundedobjects;
-	list<Geometry*> boundedobjects;
-    list<Light*> lights;
-    Camera camera;
+    list<Geometry*> 					objects;
+	list<Geometry*>					nonboundedobjects;
+	list<Geometry*>					boundedobjects;
+    list<Light*>							lights;
+    Camera 								camera;
 
-	bool textureMapping;
-	unsigned char* textureImg;	//texture image, shared with the one loaded to Trace UI
-	int textureWidth;
-	int textureHeight;
+	bool 										textureMapping;
+	unsigned char*						textureImg;	//texture image, shared with the one loaded to Trace UI
+	int 										textureWidth;
+	int 										textureHeight;
 	
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()
 	// are exempt from this requirement.
-	BoundingBox sceneBounds;
+	BoundingBox 						sceneBounds;
 };
 
 #endif // __SCENE_H__

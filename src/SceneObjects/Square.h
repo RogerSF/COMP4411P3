@@ -14,8 +14,9 @@ public:
 
 	virtual bool intersectLocal( const ray& r, isect& i ) const;
 	virtual bool hasBoundingBoxCapability() const { return true; }
-
-    virtual BoundingBox ComputeLocalBoundingBox()
+	virtual bool getLocalUV(const ray& r, const isect& i, double& u, double& v) const { return false; }
+    
+	virtual BoundingBox ComputeLocalBoundingBox()
     {
         BoundingBox localbounds;
         localbounds.min = vec3f(-0.5f, -0.5f, -RAY_EPSILON);

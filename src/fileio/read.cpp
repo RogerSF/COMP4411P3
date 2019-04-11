@@ -524,7 +524,14 @@ static void processObject( Obj *obj, Scene *scene, mmap& materials )
 		scene->add( new DirectionalLight( scene, 
 			tupleToVec( getField( child, "direction" ) ).normalize(),
 			tupleToVec( getColorField( child ) ) ) );
-	} else if( name == "point_light" ) {
+	}
+	 else if (name == "ambient_light") {
+		if (child == NULL) {
+			throw ParseError("No info for directional_light");
+		}
+		scene->ambientLight = tupleToVec(getColorField(child));
+	}
+	else if( name == "point_light" ) {
 		if( child == NULL ) {
 			throw ParseError( "No info for point_light" );
 		}

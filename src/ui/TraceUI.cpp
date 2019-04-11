@@ -11,7 +11,9 @@
 
 #include "TraceUI.h"
 #include "../RayTracer.h"
+#include <iostream>
 
+using namespace std;
 static bool done;
 
 //------------------------------------- Help Functions --------------------------------------------
@@ -33,6 +35,14 @@ void TraceUI::cb_load_scene(Fl_Menu_* o, void* v)
 		if (pUI->raytracer->loadScene(newfile)) {
 			sprintf(buf, "Ray <%s>", newfile);
 			done=true;	// terminate the previous rendering
+			pUI->raytracer->getScene()->setAttenConst(pUI->m_attenConst);
+			pUI->raytracer->getScene()->setAttenLinear(pUI->m_attenLinear);
+			pUI->raytracer->getScene()->setAttenQuad(pUI->m_attenQuad);
+
+			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
+			pUI->raytracer->getScene()->setTextureWidth(pUI->textureWidth);
+			pUI->raytracer->getScene()->setTextureHeight(pUI->textureHeight);
+			pUI->raytracer->getScene()->setTextureMapping(pUI->m_enableTextureMapping);
 		} else{
 			sprintf(buf, "Ray <Not Loaded>");
 		}
@@ -71,7 +81,9 @@ void TraceUI::cb_load_background(Fl_Menu_ * o, void * v)
 		}
 
 		pUI->backgroundImg = data;
+		// cout << pUI->backgroundImg << endl;
 		pUI->m_enableBackgroundButton->activate();
+		pUI->raytracer->setBackgroundImg(data);
 	}
 }
 
@@ -94,12 +106,12 @@ void TraceUI::cb_load_texture(Fl_Menu_ * o, void * v)
 		pUI->m_enableTextureMappingButton->activate();
 		//initialize or update the existing texture in the current scene, keep them synced
 		if (pUI->raytracer->sceneLoaded()) {
-			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
+			
 			pUI->textureWidth = width;
 			pUI->textureHeight = height;
+			pUI->raytracer->getScene()->setTexture(pUI->textureImg);
 			pUI->raytracer->getScene()->setTextureWidth(width);
 			pUI->raytracer->getScene()->setTextureHeight(height);
-
 		}
 	}
 
@@ -149,17 +161,32 @@ void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 
 void TraceUI::cb_attenConstSlides(Fl_Widget* o, void* v)
 {
+	TraceUI* pUI = (TraceUI*)(o->user_data());
 	((TraceUI*)(o->user_data()))->m_attenConst = float(((Fl_Slider *)o)->value());
+	if (pUI->raytracer->getScene()) {
+		pUI->raytracer->getScene()->setAttenConst(pUI->m_attenConst);
+	}
+	
 }
 
 void TraceUI::cb_attenLinearSlides(Fl_Widget* o, void* v)
 {
+	TraceUI* pUI = (TraceUI*)(o->user_data());
 	((TraceUI*)(o->user_data()))->m_attenLinear = float(((Fl_Slider *)o)->value());
+	if (pUI->raytracer->getScene()) {
+		pUI->raytracer->getScene()->setAttenLinear(pUI->m_attenLinear);
+	}
+	
+	
 }
 
 void TraceUI::cb_attenQuadSlides(Fl_Widget* o, void* v)
 {
+	TraceUI* pUI = (TraceUI*)(o->user_data());
 	((TraceUI*)(o->user_data()))->m_attenQuad = float(((Fl_Slider *)o)->value());
+	if (pUI->raytracer->getScene()) {
+		pUI->raytracer->getScene()->setAttenQuad(pUI->m_attenQuad);
+	}
 }
 
 void TraceUI::cb_enableBackground(Fl_Widget* o, void* v)
@@ -357,8 +384,8 @@ Fl_Menu_Item TraceUI::menuitems[] = {
 
 TraceUI::TraceUI() {
 	// init.
-	m_nDepth = 0;
-	m_nSize = 150;
+	m_nDepth = 3;
+	m_nSize = 200;
 
 	m_attenConst = 0.2;
 	m_attenLinear = 0.1;
@@ -485,7 +512,7 @@ TraceUI::TraceUI() {
 		m_enableTextureMappingButton->deactivate();
 
 		// Ambient Light
-		m_ambientLightSlider = new Fl_Value_Slider(10, 355, 180, 20, "Ambient Light");
+		m_ambientLightSlider = new Fl_Value_Slider(10, 230, 180, 20, "Ambient Light");
 		m_ambientLightSlider->user_data((void*)(this));	// record self to be used by static callback functions
 		m_ambientLightSlider->type(FL_HOR_NICE_SLIDER);
 		m_ambientLightSlider->labelfont(FL_COURIER);
