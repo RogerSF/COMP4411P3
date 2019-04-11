@@ -298,3 +298,13 @@ void Scene::setAttenQuad(float atten)
 {
 	traceUI->setAttenQuad(atten);
 }
+
+void Scene::setAdaptiveTermination(float atten)
+{
+	this->adaptiveTermination = atten;
+}
+
+float Scene::getAdaptiveTermination()
+{
+	return adaptiveTermination;
+}

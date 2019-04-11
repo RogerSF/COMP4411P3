@@ -259,7 +259,7 @@ public:
 public:
 	Scene() 
 		: transformRoot(), objects(), lights() {
-		
+		adaptiveTermination = 0;
 		textureImg = NULL;
 		ambientLight = vec3f(1.0, 1.0, 1.0);
 	}
@@ -302,6 +302,8 @@ public:
 	void 										setAttenConst(float atten);
 	void 										setAttenLinear(float atten);
 	void 										setAttenQuad(float atten);
+	void										setAdaptiveTermination(float ter);
+	float										getAdaptiveTermination();
 
 private:
     list<Geometry*> 					objects;
@@ -314,7 +316,7 @@ private:
 	unsigned char*						textureImg;	//texture image, shared with the one loaded to Trace UI
 	int 										textureWidth;
 	int 										textureHeight;
-	
+	float										adaptiveTermination;
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()
 	// are exempt from this requirement.

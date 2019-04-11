@@ -176,8 +176,6 @@ void TraceUI::cb_attenLinearSlides(Fl_Widget* o, void* v)
 	if (pUI->raytracer->getScene()) {
 		pUI->raytracer->getScene()->setAttenLinear(pUI->m_attenLinear);
 	}
-	
-	
 }
 
 void TraceUI::cb_attenQuadSlides(Fl_Widget* o, void* v)
@@ -234,6 +232,18 @@ void TraceUI::cb_ambientLightSlides(Fl_Widget * o, void * v)
 	//sync this value to scene if any
 	if (pUI->raytracer->sceneLoaded()) {
 		pUI->raytracer->getScene()->ambientLight = vec3f(pUI->ambientLight, pUI->ambientLight, pUI->ambientLight);
+	}
+}
+
+void TraceUI::cb_adaptiveTerminationSlides(Fl_Widget * o, void * v)
+{
+	TraceUI* pUI = (TraceUI*)(o->user_data());
+	pUI->adaptiveTermination = double(((Fl_Slider *)o)->value());
+	cout << pUI->adaptiveTermination << endl;
+
+	//sync this value to scene if any
+	if (pUI->raytracer->sceneLoaded()) {
+		pUI->raytracer->getScene()->setAdaptiveTermination(pUI->adaptiveTermination); 
 	}
 }
 
@@ -400,6 +410,7 @@ TraceUI::TraceUI() {
 	textureHeight = 0;
 	textureWidth = 0;
 	ambientLight = 1.0f;
+	adaptiveTermination = 0.0f;
 
 	m_mainWindow = new Fl_Window(100, 40, 400, 500, "Ray <Not Loaded>");
 
@@ -469,6 +480,18 @@ TraceUI::TraceUI() {
 		m_attenQuadSlider->value(m_attenQuad);
 		m_attenQuadSlider->align(FL_ALIGN_RIGHT);
 		m_attenQuadSlider->callback(cb_attenQuadSlides);
+
+		m_adaptiveTerminationSlider = new Fl_Value_Slider(10, 250, 180, 20, "Termination Limit");
+		m_adaptiveTerminationSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_adaptiveTerminationSlider->type(FL_HOR_NICE_SLIDER);
+		m_adaptiveTerminationSlider->labelfont(FL_COURIER);
+		m_adaptiveTerminationSlider->labelsize(12);
+		m_adaptiveTerminationSlider->minimum(0);
+		m_adaptiveTerminationSlider->maximum(1);
+		m_adaptiveTerminationSlider->step(0.01);
+		m_adaptiveTerminationSlider->value(adaptiveTermination);
+		m_adaptiveTerminationSlider->align(FL_ALIGN_RIGHT);
+		m_adaptiveTerminationSlider->callback(cb_adaptiveTerminationSlides);
 
 		//use background image or not
 		m_enableBackgroundButton = new Fl_Light_Button(10, 155, 100, 25, "&Background");

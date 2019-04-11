@@ -20,6 +20,36 @@ bool Cylinder::intersectLocal( const ray& r, isect& i ) const
 	}
 }
 
+bool Cylinder::getLocalUV(const ray& r, const isect& i, double& u, double& v) const {
+	vec3f pos = transform->globalToLocalCoords(r.getPosition());
+	vec3f dir = transform->globalToLocalCoords(r.getPosition() + r.getDirection()) - pos;
+	double length = dir.length();
+	dir /= length;
+
+	ray localRay(pos, dir);
+	isect icopy = i;
+	if (intersectCaps(localRay, icopy)) {
+		vec3f sn = localRay.at(icopy.t);
+		u = (sn[0] + 1) / 2;
+		v = (sn[1] + 1) / 2;
+		return true;
+	}
+	if (intersectBody(localRay, icopy)) {
+		vec3f sn = localRay.at(icopy.t);
+		v = (0.25 + sn[2]) / 0.5;
+		if (sn[1] > 0) {
+			u = 0.5 + acos(sn[0] * sn[1]) / 3.1415926 / 2;
+		}
+		else {
+			u = 0.5 - acos(sn[0] * sn[1]) / 3.1415926 / 2;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 bool Cylinder::intersectBody( const ray& r, isect& i ) const
 {
 	double x0 = r.getPosition()[0];

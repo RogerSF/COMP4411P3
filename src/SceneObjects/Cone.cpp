@@ -20,6 +20,45 @@ bool Cone::intersectLocal( const ray& r, isect& i ) const
 		return intersectBody( r, i );
 	}
 }
+bool Cone::getLocalUV(const ray& r, const isect& i, double& u, double& v) const {
+	vec3f pos = transform->globalToLocalCoords(r.getPosition());
+	vec3f dir = transform->globalToLocalCoords(r.getPosition() + r.getDirection()) - pos;
+	double length = dir.length();
+	dir /= length;
+
+	ray localRay(pos, dir);
+	isect icopy = i;
+	if (intersectCaps(localRay, icopy)) {
+		vec3f sn = localRay.at(icopy.t);
+		if (sn[2] <= 0) {// b_radius
+			u = 0.5 + (sn[0] / b_radius / 2);
+			v = 0.5 + (sn[1] / b_radius / 2);
+		}
+		else {
+			u = 0.5 + (sn[0] / t_radius / 2);
+			v = 0.5 + (sn[1] / t_radius / 2);
+		}
+		return true;
+	}
+	if (intersectBody(localRay, icopy)) {
+		vec3f sn = localRay.at(icopy.t);
+		v = 0.5 + (sn[2]) / height;
+		double R = maximum(b_radius, t_radius);
+		double r = minimum(b_radius, t_radius);
+		if (sn[1] > 0) {
+			u = 0.5 + acos(sn[0] * sn[1]) / 3.1415926 / 2;
+			u /= (b_radius + v * (t_radius - b_radius));
+		}
+		else {
+			u = 0.5 - acos(sn[0] * sn[1]) / 3.1415926 / 2;
+			u /= u * (b_radius + v * (t_radius - b_radius));
+		}
+
+		return true;
+	}
+
+	return false;
+}
 
 
 bool Cone::intersectBody( const ray& r, isect& i ) const

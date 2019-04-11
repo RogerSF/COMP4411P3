@@ -22,7 +22,8 @@ vec3f RayTracer::trace( Scene *scene, double x, double y )
 {
     ray r( vec3f(0,0,0), vec3f(0,0,0) );
     scene->getCamera()->rayThrough( x,y,r );
-	return traceRay( scene, r, vec3f(1.0,1.0,1.0), 0 ).clamp();
+	vec3f thresh(scene->getAdaptiveTermination(), scene->getAdaptiveTermination(), scene->getAdaptiveTermination());
+	return traceRay( scene, r, thresh, 0 ).clamp();
 }
 
 // Do recursive ray tracing!  You'll want to insert a lot of code here
@@ -31,7 +32,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 	const vec3f& thresh, int depth )
 {
 	isect i;
-
+	
 	if( scene->intersect( r, i ) ) {
 		// YOUR CODE HERE
 
@@ -57,58 +58,62 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		{
 			return final_intensity;
 		}
+		if (final_intensity.length() >= thresh.length()) {
 
-		vec3f intersect_position = r.at(i.t);
-		vec3f normal = i.N.normalize();
-		vec3f ray_direction = r.getDirection().normalize();
+			vec3f intersect_position = r.at(i.t);
+			vec3f normal = i.N.normalize();
+			vec3f ray_direction = r.getDirection().normalize();
 
-		// Negate the reflected light vector to get vector pointing out the surface
-		// This is because the origin light ray points towards the surface
-		// and the immediate reflection of this will result in a ray pointing towards the surface too
-		vec3f reflected_ray_direction = (ray_direction - 2 * ((ray_direction).dot(normal)) * normal).normalize();
+			// Negate the reflected light vector to get vector pointing out the surface
+			// This is because the origin light ray points towards the surface
+			// and the immediate reflection of this will result in a ray pointing towards the surface too
+			vec3f reflected_ray_direction = (ray_direction - 2 * ((ray_direction).dot(normal)) * normal).normalize();
 
-		// Reflected ray tracing
-		if(!i.getMaterial().kr.iszero()) {
-			ray reflected_ray = ray(intersect_position, reflected_ray_direction);
-			final_intensity += prod(i.getMaterial().kr, traceRay(scene, reflected_ray, prod(thresh, i.getMaterial().kr), depth + 1));
-		}
-
-		// Refracted ray tracing
-		if (!i.getMaterial().kt.iszero()) {
-			double index1, index2;
-			bool isLeavingObject = material_stack.empty() ? false : &i.getMaterial() == material_stack.front();
-
-			if(isLeavingObject)
-			{
-				// Leaving object
-				index1 = i.getMaterial().index;
-				index2 = material_stack.size() <= 1 ? 1.0 : material_stack[1]->index;
-				material_stack.pop_front();
-				normal = -normal;
-			} else
-			{
-				// Entering object
-				index1 = material_stack.empty() ? 1.0 : material_stack.front()->index;
-				index2 = i.getMaterial().index;
-				material_stack.push_front(&i.getMaterial());
+			// Reflected ray tracing
+			if (!i.getMaterial().kr.iszero()) {
+				ray reflected_ray = ray(intersect_position, reflected_ray_direction);
+				final_intensity += prod(i.getMaterial().kr, traceRay(scene, reflected_ray, prod(thresh, i.getMaterial().kr), depth + 1));
 			}
 
-			double ratio_of_refraction = index1 / index2;
-			double cos_incident_angle = maximum(1, minimum(-1, normal.dot(-ray_direction))); // Invert the ray direction vector to compute angle between vectors, clamp between -1, 1
-			double sin_incident_angle = sqrt(1 - pow(cos_incident_angle, 2)); // sin cos identity
-			double sin_refracted_angle = sin_incident_angle * ratio_of_refraction;
+			// Refracted ray tracing
+			if (!i.getMaterial().kt.iszero()) {
+				double index1, index2;
+				bool isLeavingObject = material_stack.empty() ? false : &i.getMaterial() == material_stack.front();
 
-			if(sin_refracted_angle > 1.0)
-			{
-				// tir
-				return vec3f();
-			} else
-			{
-				double cos_refracted_angle = sqrt(1 - pow(sin_refracted_angle, 2));
-				vec3f refracted_ray_direction = (ratio_of_refraction * cos_refracted_angle - cos_refracted_angle)*normal - (ratio_of_refraction * -ray_direction);
-				ray refracted_ray = ray(intersect_position, refracted_ray_direction);
+				if (isLeavingObject)
+				{
+					// Leaving object
+					index1 = i.getMaterial().index;
+					index2 = material_stack.size() <= 1 ? 1.0 : material_stack[1]->index;
+					material_stack.pop_front();
+					normal = -normal;
+				}
+				else
+				{
+					// Entering object
+					index1 = material_stack.empty() ? 1.0 : material_stack.front()->index;
+					index2 = i.getMaterial().index;
+					material_stack.push_front(&i.getMaterial());
+				}
 
-				final_intensity += prod(i.getMaterial().kt, traceRay(scene, refracted_ray, prod(thresh, i.getMaterial().kt), depth + 1));
+				double ratio_of_refraction = index1 / index2;
+				double cos_incident_angle = maximum(1, minimum(-1, normal.dot(-ray_direction))); // Invert the ray direction vector to compute angle between vectors, clamp between -1, 1
+				double sin_incident_angle = sqrt(1 - pow(cos_incident_angle, 2)); // sin cos identity
+				double sin_refracted_angle = sin_incident_angle * ratio_of_refraction;
+
+				if (sin_refracted_angle > 1.0)
+				{
+					// tir
+					return vec3f();
+				}
+				else
+				{
+					double cos_refracted_angle = sqrt(1 - pow(sin_refracted_angle, 2));
+					vec3f refracted_ray_direction = (ratio_of_refraction * cos_refracted_angle - cos_refracted_angle)*normal - (ratio_of_refraction * -ray_direction);
+					ray refracted_ray = ray(intersect_position, refracted_ray_direction);
+
+					final_intensity += prod(i.getMaterial().kt, traceRay(scene, refracted_ray, prod(thresh, i.getMaterial().kt), depth + 1));
+				}
 			}
 		}
 

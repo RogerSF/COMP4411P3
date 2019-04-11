@@ -38,6 +38,7 @@ public:
 	Fl_Slider*			m_attenQuadSlider;
 	Fl_Slider*			m_numSubPixelsSlider;
 	Fl_Slider*			m_ambientLightSlider;
+	Fl_Slider*			m_adaptiveTerminationSlider;
 
 	Fl_Light_Button*	m_enableBackgroundButton;
 	Fl_Light_Button*	m_enableAntialiasingButton;
@@ -61,9 +62,11 @@ public:
 	void						setAttenConst(float atten) { this->m_attenConst = atten; this->m_attenConstSlider->value(atten); }
 	void						setAttenLinear(float atten) { this->m_attenLinear = atten; this->m_attenLinearSlider->value(atten); }
 	void						setAttenQuad(float atten) { this->m_attenQuad = atten; this->m_attenQuadSlider->value(atten); }
+	void						setAdaptiveTermination(float ter) { this->adaptiveTermination = ter; this->m_adaptiveTerminationSlider->value(ter); }
 	float						getAttenConst() { return this->m_attenConst;  }
 	float						getAttenLinear() { return this->m_attenLinear; }
 	float						getAttenQuad() { return this->m_attenQuad; }
+	float						getAdaptiveTermination() { return this->adaptiveTermination; }
 
 	unsigned char*		backgroundImg;	//for bonus
 	unsigned char*		textureImg;	//for bonus
@@ -88,6 +91,7 @@ private:
 	float						m_attenLinear;
 	float						m_attenQuad;
 	float						ambientLight;
+	float						adaptiveTermination;
 
 	bool						m_enableBackground;
 	bool						m_enableAntialiasing;
@@ -113,6 +117,7 @@ private:
 	static void cb_attenConstSlides(Fl_Widget* o, void* v);
 	static void cb_attenLinearSlides(Fl_Widget* o, void* v);
 	static void cb_attenQuadSlides(Fl_Widget* o, void* v);
+	static void cb_adaptiveTerminationSlides(Fl_Widget* o, void* v);
 
 	static void cb_enableBackground(Fl_Widget* o, void* v);
 	static void cb_enableJittering(Fl_Widget* o, void* v);
