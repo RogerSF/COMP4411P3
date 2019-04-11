@@ -35,7 +35,7 @@ Remember that you'll need to establish to our satisfaction that you've implement
 
 - [X] :bell: Implement antialiasing by supersampling and averaging down.  You must provide a slider that indicates the number of sub-pixel samples being used (e.g., something in the range 1-5 indicating 1x1, 2x2, ... 5x5 supersampling). This whistle upgrades to a bell if you implement the first stage of distribution ray tracing by jittering the sub-pixel samples.  The noise introduced by jittering should be evident when casting 1 ray per pixel.
 
-- [ ] :bell: Implement spot lights.
+- [X] :bell: Implement spot lights.
 
 - [X] :bell: Add a menu option that lets you specify a background image to replace the environment's ambient color during the rendering.  That is, any ray that goes off into infinity behind the scene should return a color from the loaded image, instead of just black.  The background should appear as the backplane of the rendered image with suitable reflections and refractions to it.
 
@@ -47,7 +47,7 @@ Remember that you'll need to establish to our satisfaction that you've implement
 
 - [ ] :bell::notes: Implement antialiasing by adaptive supersampling, as described in Foley, et al., 15.10.4.  For full credit, you must show some sort of visualization of the sampling pattern that results.  For example, you could create another image where each pixel is given an intensity proportional to the number of rays used to calculate the color of the corresponding pixel in the ray traced image.  Implementing this bell/whistle is a big win -- [ ] nice antialiasing at low cost.
 
-- [ ] :bell::notes: Implement more versatile lighting controls, such as the Warn model described in Foley 16.1.5. This allows you to do things like control the shape of the projected light.
+- [X] :bell::notes: Implement more versatile lighting controls, such as the Warn model described in Foley 16.1.5. This allows you to do things like control the shape of the projected light.
 
 - [ ] :bell::bell: Implement bump mapping (Watt 8.4; Foley, et al. 16.3.3).
 

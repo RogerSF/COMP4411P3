@@ -1,0 +1,34 @@
+SBT-raytracer 1.0
+
+// box_dist_atten.ray
+// Test for distance attenuation
+
+camera
+{
+	position = (7, 0, 0);
+	viewdir = (-1, 0, 0);
+	updir = (0, 0, 1);
+}
+
+// Warn model light just above the center of the box.
+warn_model_light
+{
+	position = (0, 0, 8);
+	color = (1, 1, 1);
+	central_direction = (0,0,-1);
+	specular_exponent = 16.0;
+	xflapmin = -2;
+	xflapmax = 2;
+	yflapmin = -3;
+	yflapmax = 3;
+	zflapmin = -2;
+	zflapmax = 2;
+}
+
+// The box forms a plane, which should be noticably 
+// brighter in the middle than on the edges
+translate( 0, 0, -2,
+	scale( 15, 15, 1, 
+		box {
+			material = { diffuse = (0, 1, 0); }
+	} ) )
